@@ -28,7 +28,7 @@ class PushButtonSkill(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
 
-    def init_gpio:
+    def init_gpio(self):
         try:
             GPIO.setwarnings(False)
             GPIO.remove_event_detect(self.button_pin)
