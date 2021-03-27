@@ -28,11 +28,7 @@ class PushButtonSkill(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
 
-    def initialize(self):
-        self.settings_change_callback = self.on_settings_changed
-        self.get_settings()
-        if self.button_pin is None:
-            return
+    def init_gpio:
         try:
             GPIO.setwarnings(False)
             GPIO.remove_event_detect(self.button_pin)
@@ -50,6 +46,14 @@ class PushButtonSkill(MycroftSkill):
             return
         self.pressed = False
         self.schedule_repeating_event(self.check_button, None, 0.1, 'ButtonStatus')
+
+
+    def initialize(self):
+        self.settings_change_callback = self.on_settings_changed
+        self.get_settings()
+        if self.button_pin is None:
+            return
+        self.init_gpio()
 
     def check_button(self):
         if self.pressed:
