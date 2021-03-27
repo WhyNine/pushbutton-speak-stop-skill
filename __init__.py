@@ -39,9 +39,11 @@ class PushButtonSkill(MycroftSkill):
             if self.button_polarity == 0:                                      # active low
                 GPIO.setup(self.button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
                 GPIO.add_event_detect(self.button_pin, GPIO.FALLING)
+                LOGGER.info(f"Set GPIO pin {self.button_pin} as input with pull up")
             else:                                                              # active high
                 GPIO.setup(self.button_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
                 GPIO.add_event_detect(self.button_pin, GPIO.RISING)
+                LOGGER.info(f"Set GPIO pin {self.button_pin} as input with pull down")
         except:
             LOGGER.warning("Can't initialize GPIO - skill will not load")
             self.speak_dialog("error.initialize")
