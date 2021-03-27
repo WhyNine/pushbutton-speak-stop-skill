@@ -77,10 +77,12 @@ class PushButtonSkill(MycroftSkill):
     def get_settings(self):
         self.button_pin = int(self.settings.get('button_pin'))
         self.button_polarity = int(self.settings.get('button_polarity', 0))
+        LOGGER.info(f"GPIO pin = {self.button_pin}, polarity = {self.button_polarity}")
         if (self.button_pin is None) or (self.button_pin < 0) or (self.button_pin > 27):
             LOGGER.info("Invalid GPIO pin number")
             self.button_pin = None
-        LOGGER.info(f"GPIO pin = {self.button_pin}, polarity = {self.button_polarity}")
+        else:
+            self.init_gpio()
 
 
 def create_skill():
