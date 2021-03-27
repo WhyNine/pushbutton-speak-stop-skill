@@ -69,7 +69,7 @@ class PushButtonSkill(MycroftSkill):
         self.led_idle()
         
     def get_settings(self):
-        self.button_pin = self.settings.get('button_pin', 24)
+        self.button_pin = self.settings.get('button_pin')
         self.button_polarity = self.settings.get('button_polarity', 0)
         if (self.button_pin < 0) or (self.button_pin > 27):
             LOGGER.info("Invalid GPIO pin number")
