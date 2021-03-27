@@ -66,7 +66,7 @@ class PushButtonSkill(MycroftSkill):
 
     def on_settings_changed(self):
         self.get_settings()
-        self.led_idle()
+        self.pressed = False
         
     def get_settings(self):
         self.button_pin = self.settings.get('button_pin')
