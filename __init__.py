@@ -61,12 +61,12 @@ class PushButtonSkill(MycroftSkill):
         self.add_event("mycroft.audio.service.stop", self.audio_stopped)
         self.add_event("mycroft.audio.service.play", self.audio_started)
 
-    def audio_stopped(self, message)
+    def audio_stopped(self, message):
         LOGGER.info("Audio stopped detected")
         if (self.gpio_initialised)
             GPIO.output(self.led_pin, 1 - self.led_polarity)
 
-    def audio_started(self, message)
+    def audio_started(self, message):
         LOGGER.info("Audio started detected")
         if (self.gpio_initialised)
             GPIO.output(self.led_pin, self.led_polarity)
