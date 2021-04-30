@@ -92,9 +92,9 @@ class PushButtonSkill(MycroftSkill):
         self.init_gpio()
         
     def get_settings(self):
-        self.led_pin = int(self.settings.get('led_pin'), -1)
+        self.led_pin = int(self.settings.get('led_pin', -1))
         self.led_polarity = int(self.settings.get('led_polarity', 1))
-        self.button_pin = int(self.settings.get('button_pin'), -1)
+        self.button_pin = int(self.settings.get('button_pin', -1))
         self.button_polarity = int(self.settings.get('button_polarity', 0))
         LOGGER.info(f"Button GPIO pin = {self.button_pin}, polarity = {self.button_polarity}")
         if (self.button_pin is None) or (self.button_pin < 0) or (self.button_pin > 27):
