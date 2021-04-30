@@ -4,13 +4,22 @@ skillMetadata:
     - name: Pushbutton speak/stop skill
       fields:
         - type: label
-          label: Enter the configuration of the GPIO pin that the button is connected to. 
+          label: Enter the configuration of the GPIO pin that the button and LED are connected to. 
         - name: button_pin
           type: number
-          label: GPIO pin
+          label: Button GPIO pin
           value: 24
         - name: button_polarity
           type: select
-          label: Signal polarity
+          label: Button signal polarity
           options: Active low|0;Active high|1
           value: 0
+        - name: led_pin
+          type: number
+          label: LED GPIO pin
+          value: 23
+        - name: led_polarity
+          type: select
+          label: LED signal polarity
+          options: Active low|0;Active high|1
+          value: 1

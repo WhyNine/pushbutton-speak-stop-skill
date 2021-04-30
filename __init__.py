@@ -29,6 +29,7 @@ class PushButtonSkill(MycroftSkill):
         MycroftSkill.__init__(self)
 
     def init_gpio(self):
+        self.gpio_initialised = False
         try:
             GPIO.setwarnings(False)
             GPIO.remove_event_detect(self.button_pin)
@@ -40,10 +41,13 @@ class PushButtonSkill(MycroftSkill):
                 GPIO.setup(self.button_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
                 GPIO.add_event_detect(self.button_pin, GPIO.RISING)
                 LOGGER.info(f"Set GPIO pin {self.button_pin} as input with pull down")
+            GPIO.setup(self.led_pin, GPIO.OUT)
+            GPIO.output(self.led_pin, 1 - self.led_polarity)
         except:
             LOGGER.warning("Can't initialize GPIO - skill will not load")
             self.speak_dialog("error.initialize")
             return
+        self.gpio_initialised = True
         self.pressed = False
         self.schedule_repeating_event(self.check_button, None, 0.1, 'ButtonStatus')
 
@@ -54,6 +58,18 @@ class PushButtonSkill(MycroftSkill):
         if self.button_pin is None:
             return
         self.init_gpio()
+        self.add_event("mycroft.audio.service.stop", self.audio_stopped)
+        self.add_event("mycroft.audio.service.play", self.audio_started)
+
+    def audio_stopped(self, message)
+        LOGGER.info("Audio stopped detected")
+        if (self.gpio_initialised)
+            GPIO.output(self.led_pin, 1 - self.led_polarity)
+
+    def audio_started(self, message)
+        LOGGER.info("Audio started detected")
+        if (self.gpio_initialised)
+            GPIO.output(self.led_pin, self.led_polarity)
 
     def check_button(self):
         if self.pressed:
@@ -73,16 +89,21 @@ class PushButtonSkill(MycroftSkill):
     def on_settings_changed(self):
         self.get_settings()
         self.pressed = False
+        self.init_gpio()
         
     def get_settings(self):
+        self.led_pin = int(self.settings.get('led_pin'))
+        self.led_polarity = int(self.settings.get('led_polarity', 1))
         self.button_pin = int(self.settings.get('button_pin'))
         self.button_polarity = int(self.settings.get('button_polarity', 0))
-        LOGGER.info(f"GPIO pin = {self.button_pin}, polarity = {self.button_polarity}")
+        LOGGER.info(f"Button GPIO pin = {self.button_pin}, polarity = {self.button_polarity}")
         if (self.button_pin is None) or (self.button_pin < 0) or (self.button_pin > 27):
-            LOGGER.info("Invalid GPIO pin number")
+            LOGGER.info("Invalid button GPIO pin number")
             self.button_pin = None
-        else:
-            self.init_gpio()
+        LOGGER.info(f"LED GPIO pin = {self.led_pin}, polarity = {self.led_polarity}")
+        if (self.led_pin is None) or (self.led_pin < 0) or (self.led_pin > 27):
+            LOGGER.info("Invalid LED GPIO pin number")
+            self.led_pin = None
 
 
 def create_skill():
