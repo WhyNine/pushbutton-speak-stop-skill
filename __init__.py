@@ -63,7 +63,7 @@ class PushButtonSkill(MycroftSkill):
 
     def audio_stopped(self, message):
         LOGGER.info("Audio stopped detected")
-        LOGGER.info(message["by"])
+        LOGGER.info(message.data["by"])
         if (self.gpio_initialised):
             GPIO.output(self.led_pin, 1 - self.led_polarity)
 
