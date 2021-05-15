@@ -49,6 +49,7 @@ class PushButtonSkill(MycroftSkill):
             return
         self.gpio_initialised = True
         self.pressed = False
+        self.waiting_for_release = False
         self.schedule_repeating_event(self.check_button, None, 0.1, 'ButtonStatus')
 
 
@@ -74,22 +75,35 @@ class PushButtonSkill(MycroftSkill):
 
     def check_button(self):
         if self.pressed:
-            if GPIO.input(self.button_pin) != self.button_polarity:
-                self.pressed = False
-                self.pressed_time = time.time() - self.pressed_time
-                if self.pressed_time < longpress_threshold:
-                    self.bus.emit(Message("mycroft.mic.listen"))
+            if self.waiting_for_release:
+                if GPIO.input(self.button_pin) != self.button_polarity:
+                    self.pressed = False
+                    self.waiting_for_release = False
+                    LOGGER.info("Finally, pushbutton released")
+            else:
+                if GPIO.input(self.button_pin) != self.button_polarity:
+                    self.pressed = False
+                    self.pressed_time = time.time() - self.pressed_time
+                    if self.pressed_time < longpress_threshold:
+                        self.bus.emit(Message("mycroft.mic.listen"))
+                    else:
+                        self.bus.emit(Message("mycroft.stop"))
                 else:
-                    self.bus.emit(Message("mycroft.stop"))
+                    self.pressed_time = time.time() - self.pressed_time
+                    if self.pressed_time > longpress_threshold:
+                        self.bus.emit(Message("mycroft.stop"))
+                        self.waiting_for_release = True
+                        LOGGER.info("Ok, so this is a long press")
         else:
             if GPIO.event_detected(self.button_pin):
                 self.pressed = True
                 self.pressed_time = time.time()
-                LOGGER.debug("Detected pushbutton interrupt")
+                LOGGER.debug("Detected pushbutton press")
 
     def on_settings_changed(self):
         self.get_settings()
         self.pressed = False
+        self.waiting_for_release = False
         self.init_gpio()
         
     def get_settings(self):
