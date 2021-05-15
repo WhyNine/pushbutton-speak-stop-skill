@@ -30,6 +30,7 @@ class PushButtonSkill(MycroftSkill):
 
     def init_gpio(self):
         self.gpio_initialised = False
+        GPIO.setmode(GPIO.BOARD)
         try:
             GPIO.setwarnings(False)
             LOGGER.info("1")
