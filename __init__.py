@@ -32,17 +32,16 @@ class PushButtonSkill(MycroftSkill):
         self.gpio_initialised = False
         try:
             GPIO.setwarnings(False)
-            LOGGER.info("1")
             GPIO.remove_event_detect(self.button_pin)
-            LOGGER.info("2")
+        except:
+            LOGGER.debug("Error in init_gpio")
+        try:
             if self.button_polarity == 0:                                      # active low
                 GPIO.setup(self.button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-                LOGGER.info("3")
                 GPIO.add_event_detect(self.button_pin, GPIO.FALLING)
                 LOGGER.info(f"Set GPIO pin {self.button_pin} as input with pull up")
             else:                                                              # active high
                 GPIO.setup(self.button_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-                LOGGER.info("4")
                 GPIO.add_event_detect(self.button_pin, GPIO.RISING)
                 LOGGER.info(f"Set GPIO pin {self.button_pin} as input with pull down")
             GPIO.setup(self.led_pin, GPIO.OUT)
