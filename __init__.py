@@ -75,7 +75,7 @@ class PushButtonSkill(MycroftSkill):
 
     def process_track_info_reply(self, message):
         LOGGER.info("processing track info reply message")
-        LOGGER.info(message)
+        LOGGER.info(message.data)
 
     def repeating_task(self):
         self.bus.emit(Message('mycroft.audio.service.track_info'))
