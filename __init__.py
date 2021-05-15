@@ -50,8 +50,7 @@ class PushButtonSkill(MycroftSkill):
         self.gpio_initialised = True
         self.pressed = False
         self.waiting_for_release = False
-        self.schedule_repeating_event(self.check_button, None, 0.1, 'ButtonStatus')
-
+        self.schedule_repeating_event(self.repeating_task, None, 0.1, 'ButtonStatus')
 
     def initialize(self):
         self.settings_change_callback = self.on_settings_changed
@@ -61,6 +60,7 @@ class PushButtonSkill(MycroftSkill):
         self.init_gpio()
         self.add_event("mycroft.stop.handled", self.audio_stopped)
         self.add_event("mycroft.audio.service.play", self.audio_started)
+        self.add_event('mycroft.audio.service.track_info_reply', self.process_track_info_reply)
 
     def audio_stopped(self, message):
         if ("audio:" in message.data["by"]):
@@ -73,7 +73,12 @@ class PushButtonSkill(MycroftSkill):
         if (self.gpio_initialised):
             GPIO.output(self.led_pin, self.led_polarity)
 
-    def check_button(self):
+    def process_track_info_reply(self, message):
+        LOGGER.info("processing track info reply message")
+        LOGGER.info(message)
+
+    def repeating_task(self):
+        self.bus.emit(Message('mycroft.audio.service.track_info'))
         if self.pressed:
             if self.waiting_for_release:
                 if GPIO.input(self.button_pin) != self.button_polarity:
