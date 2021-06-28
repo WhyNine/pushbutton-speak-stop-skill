@@ -59,7 +59,11 @@ class PushButtonSkill(MycroftSkill):
         self.gpio_initialised = True
         self.pressed = False
         self.waiting_for_release = False
-        self.schedule_repeating_event(self.check_button, None, 0.1, 'ButtonStatus')
+        try:
+            self.get_scheduled_event('ButtonStatus')
+            self.schedule_repeating_event(self.check_button, None, 0.1, 'ButtonStatus')
+        except:
+            LOGGER.info("Button press check event already exists")
 
 
     def initialize(self):
@@ -70,6 +74,7 @@ class PushButtonSkill(MycroftSkill):
         self.init_gpio()
         self.add_event("mycroft.stop.handled", self.audio_stopped)
         self.add_event("mycroft.audio.service.play", self.audio_started)
+        self.schedule_repeating_event(self.heartbeat, None, 1, 'Pushbutton heartbeat')
 
     def audio_stopped(self, message):
         if ("audio:" in message.data["by"]):
@@ -83,23 +88,25 @@ class PushButtonSkill(MycroftSkill):
             GPIO.output(self.led_pin, self.led_polarity)
 
     def check_button(self):
-        if self.pressed:
-            if self.waiting_for_release:
-                if GPIO.input(self.button_pin) != self.button_polarity:
+        if self.pressed:                                                            # check if button press already detected
+            if self.waiting_for_release:                                            # check if this is a long press and we're waiting for the release
+                if GPIO.input(self.button_pin) != self.button_polarity:             # check if button has finally been released
                     self.pressed = False
                     self.waiting_for_release = False
-                    LOGGER.info("Finally, pushbutton released")
-            else:
-                if GPIO.input(self.button_pin) != self.button_polarity:
+                    LOGGER.info("Finally, pushbutton released (long press)")
+            else:                                                                   # so we're not waiting for the long release
+                if GPIO.input(self.button_pin) != self.button_polarity:             # check if button has been released
                     self.pressed = False
                     self.pressed_time = time.time() - self.pressed_time
-                    if self.pressed_time < longpress_threshold:
+                    if self.pressed_time < longpress_threshold:                     # check if this is a short press
+                        LOGGER.info("Pushbutton released (short press)")
                         self.bus.emit(Message("mycroft.mic.listen"))
-                    else:
+                    else:                                                           # so this must be a long press
+                        LOGGER.info("Pushbutton released (long press)")
                         self.bus.emit(Message("mycroft.stop"))
-                else:
+                else:                                                               # so button has not been released
                     self.pressed_time = time.time() - self.pressed_time
-                    if self.pressed_time > longpress_threshold:
+                    if self.pressed_time > longpress_threshold:                     # check if we're past the long press threshold
                         self.bus.emit(Message("mycroft.stop"))
                         self.waiting_for_release = True
                         LOGGER.info("Ok, so this is a long press")
@@ -107,7 +114,15 @@ class PushButtonSkill(MycroftSkill):
             if GPIO.event_detected(self.button_pin):
                 self.pressed = True
                 self.pressed_time = time.time()
-                LOGGER.debug("Detected pushbutton press")
+                self.waiting_for_release = False
+                LOGGER.info("Detected pushbutton press")
+
+# If this is a really long button press, something may have gone wrong so reset everything
+    def heartbeat(self):
+        if self.pressed and (time.time() - self.pressed_time) > 4 * longpress_threshold:
+            LOGGER.info("Something gone wrong in Pushbutton")
+            self.init_gpio()
+            self.bus.emit(Message("mycroft.stop"))
 
     def on_settings_changed(self):
         self.get_settings()
