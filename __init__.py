@@ -64,6 +64,8 @@ class PushButtonSkill(MycroftSkill):
             self.schedule_repeating_event(self.check_button, None, 0.1, 'ButtonStatus')
         except:
             LOGGER.info("Button press check event already exists")
+            self.cancel_scheduled_event('ButtonStatus')
+            self.schedule_repeating_event(self.check_button, None, 0.1, 'ButtonStatus')
 
 
     def initialize(self):
@@ -111,7 +113,7 @@ class PushButtonSkill(MycroftSkill):
                         self.waiting_for_release = True
                         LOGGER.info("Ok, so this is a long press")
         else:
-            LOGGER.info(GPIO.input(self.button_pin))
+#            LOGGER.info(GPIO.input(self.button_pin))
             if GPIO.input(self.button_pin) == self.button_polarity:
                 self.pressed = True
                 self.pressed_time = time.time()
