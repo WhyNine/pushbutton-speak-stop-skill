@@ -111,7 +111,7 @@ class PushButtonSkill(MycroftSkill):
                         self.waiting_for_release = True
                         LOGGER.info("Ok, so this is a long press")
         else:
-            if GPIO.event_detected(self.button_pin):
+            if GPIO.input(self.button_pin) == self.button_polarity:
                 self.pressed = True
                 self.pressed_time = time.time()
                 self.waiting_for_release = False
