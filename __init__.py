@@ -99,24 +99,22 @@ class PushButtonSkill(MycroftSkill):
             else:                                                                   # so we're not waiting for the long release
                 if GPIO.input(self.button_pin) != self.button_polarity:             # check if button has been released
                     self.pressed = False
-                    self.pressed_time = time.time() - self.pressed_time
-                    if self.pressed_time < longpress_threshold:                     # check if this is a short press
+                    if (time.time() - self.pressed_time) < longpress_threshold:     # check if this is a short press
                         LOGGER.info("Pushbutton released (short press)")
                         self.bus.emit(Message("mycroft.mic.listen"))
                     else:                                                           # so this must be a long press
                         LOGGER.info("Pushbutton released (long press)")
                         self.bus.emit(Message("mycroft.stop"))
                 else:                                                               # so button has not been released
-                    self.pressed_time = time.time() - self.pressed_time
-                    if self.pressed_time > longpress_threshold:                     # check if we're past the long press threshold
+                    if (time.time() - self.pressed_time) > longpress_threshold:     # check if we're past the long press threshold
                         self.bus.emit(Message("mycroft.stop"))
                         self.waiting_for_release = True
                         LOGGER.info("Ok, so this is a long press")
         else:
 #            LOGGER.info(GPIO.input(self.button_pin))
             if GPIO.event_detected(self.button_pin) or (GPIO.input(self.button_pin) == self.button_polarity):
-                self.pressed = True
                 self.pressed_time = time.time()
+                self.pressed = True
                 self.waiting_for_release = False
                 LOGGER.info("Detected pushbutton press")
 
