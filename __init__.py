@@ -22,6 +22,8 @@ import time
 LOGGER = getLogger(__name__)
 
 longpress_threshold = 2
+short_press_message = "mycroft.stop"
+long_press_message = "mycroft.mic.listen"
 
 class PushButtonSkill(MycroftSkill):
 
@@ -101,13 +103,13 @@ class PushButtonSkill(MycroftSkill):
                     self.pressed = False
                     if (time.time() - self.pressed_time) < longpress_threshold:     # check if this is a short press
                         LOGGER.info("Pushbutton released (short press)")
-                        self.bus.emit(Message("mycroft.mic.listen"))
+                        self.bus.emit(Message(short_press_message))
                     else:                                                           # so this must be a long press
                         LOGGER.info("Pushbutton released (long press)")
-                        self.bus.emit(Message("mycroft.stop"))
+                        self.bus.emit(Message(long_press_message))
                 else:                                                               # so button has not been released
                     if (time.time() - self.pressed_time) > longpress_threshold:     # check if we're past the long press threshold
-                        self.bus.emit(Message("mycroft.stop"))
+                        self.bus.emit(Message(long_press_message))
                         self.waiting_for_release = True
                         LOGGER.info("Ok, so this is a long press")
         else:

@@ -3,7 +3,7 @@
 ## About
 This Mycroft skill is written assuming that there is a pushbutton and an LED connected to a Raspberry Pi. 
 
-A short press of the button is the same as speaking the wake word, allowing the user to then speak a command. A long press is the same as giving the 'stop' command and hence will stop the playback of any audio.
+A long press of the button is the same as speaking the wake word, allowing the user to then speak a command. A short press is the same as giving the 'stop' command and hence will stop the playback of any audio.
 
 The LED lights up whenever audio is being played (through the audioservice).
 
