@@ -70,18 +70,6 @@ class PushButtonSkill(MycroftSkill):
             self.schedule_repeating_event(self.check_button, None, 0.1, 'ButtonStatus')
 
 
-    def initialize(self):
-        self.settings_change_callback = self.on_settings_changed
-        self.get_settings()
-        if self.button_pin is None:
-            return
-        self.init_gpio()
-        self.add_event("mycroft.audio.service.stop", self.audio_stopped)
-#        self.add_event("mycroft.stop.handled", self.audio_stopped)
-        self.add_event("mycroft.audio.service.play", self.audio_started)
-        self.schedule_repeating_event(self.heartbeat, None, 1, 'Pushbutton heartbeat')
-        LOGGER.info("Finished initialisation")
-
     def audio_stopped(self, message):
 #        if ("audio:" in message.data["by"]):
             LOGGER.info("Audio stop detected, LED off")
@@ -148,6 +136,18 @@ class PushButtonSkill(MycroftSkill):
         if (self.led_pin is None) or (self.led_pin < 0) or (self.led_pin > 27):
             LOGGER.info("Invalid LED GPIO pin number")
             self.led_pin = None
+
+    def initialize(self):
+        self.settings_change_callback = self.on_settings_changed
+        self.get_settings()
+        if self.button_pin is None:
+            return
+        self.init_gpio()
+        self.add_event("mycroft.audio.service.stop", self.audio_stopped)
+#        self.add_event("mycroft.stop.handled", self.audio_stopped)
+        self.add_event("mycroft.audio.service.play", self.audio_started)
+        self.schedule_repeating_event(self.heartbeat, None, 1, 'Pushbutton heartbeat')
+        LOGGER.info("Finished initialisation")
 
 
 def create_skill():
